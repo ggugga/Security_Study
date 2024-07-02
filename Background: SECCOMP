@@ -22,7 +22,7 @@
 = read , write , exit , sigreturn  시스템 콜의 호출만을 허용
 = 이외의 시스템 콜의 호출 요청시 SIGKILL 시그널을 발생하고 프로그램을 종료
 - 다양한 기능을 수행하는 애플리케이션에서 적용 불가
-'''c
+```
 // Name: strict_mode.c
 // Compile: gcc -o strict_mode strict_mode.c
 #include <fcntl.h>
@@ -41,17 +41,72 @@ int main() {
   write(1, buf, sizeof(buf));
   return 0;
 }
+```
+코드 내에서  init_filter 함수에서 prctl 함수를 사용해 해당 모드를 적용한 것을 볼 수 있습니다
+`void init_filter() { prctl(PR_SET_SECCOMP, SECCOMP_MODE_STRICT); }`
+즉, 해당 코드를 실행 결과
+```
+$ ./strict_mode
+OPEN!
+Killed
+```
+open 함수가 실행되지 않고 프로그램이 종료되는 것을 확인할 수 있습니다.
 
+## STRICT_MODE 동작 원리
 
+```
+static const int mode1_syscalls[] = {
+    __NR_seccomp_read,
+    __NR_seccomp_write,
+    __NR_seccomp_exit,
+    __NR_seccomp_sigreturn,
+    -1, /* negative terminated */
+};
+```
 
+```
+#ifdef CONFIG_COMPAT
+static int mode1_syscalls_32[] = {
+    __NR_seccomp_read_32,
+    __NR_seccomp_write_32,
+    __NR_seccomp_exit_32,
+    __NR_seccomp_sigreturn_32,
+    0, /* null terminated */
+};
+#endif
+```
 
+mode1_syscalls
+= read, write, exit, sigreturn 시스템 콜의 번호를 저장하고 있는 변수
+-> 애플리케이션의 호환 모드에 따라서 각 비트에 맞는 시스템 콜 번호를 저장
+
+```
+static void __secure_computing_strict(int this_syscall) {
+  const int *allowed_syscalls = mode1_syscalls;
+#ifdef CONFIG_COMPAT
+  if (in_compat_syscall()) allowed_syscalls = get_compat_mode1_syscalls();
+#endif
+  do {
+    if (*allowed_syscalls == this_syscall) return;
+  } while (*++allowed_syscalls != -1);
+#ifdef SECCOMP_DEBUG
+  dump_stack();
+#endif
+  seccomp_log(this_syscall, SIGKILL, SECCOMP_RET_KILL_THREAD, true);
+  do_exit(SIGKILL);
+}
+```
+이후 애플리케이션에서 시스템 콜이 호출되면
+__secure_computing 함수에 진입하여 
+전달된 시스템콜 번호가 mode1_syscalls에 정의된 번호와 일치하는지 검사하고
+-> 일치하지 않는다면 SIGKILL 시그널을 전달하고 SECCOMP_RET_KILL을 반환
 
 ## FILTER_MODE
 = 원하는 시스템 콜의 호출을 허용하거나 거부 가능
 - 라이브러리 함수를 이용한 방법
 - 필터링에 주로 쓰이는 Berkeley Packet Filter (BPF) 문법을 통해 적용하는 방법
 
-'apt install libseccomp-dev libseccomp2 seccomp'
+`apt install libseccomp-dev libseccomp2 seccomp`
 -> seccomp 설치 명령어
 
 
