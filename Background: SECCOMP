@@ -116,13 +116,32 @@ SECCOMP의 규칙을 추가
 함수: seccomp_load
 앞서 적용한 규칙을 애플리케이션에 반영
 
-
-
 - 필터링에 주로 쓰이는 Berkeley Packet Filter (BPF) 문법을 통해 적용하는 방법
 
 `apt install libseccomp-dev libseccomp2 seccomp`
 -> seccomp 설치 명령어
 
-
 ## ALLOW LIST
 seccomp 라이브러리 함수를 사용해 지정한 시스템 콜의 호출만을 허용
+'''
+void sandbox() {
+  scmp_filter_ctx ctx;
+  ctx = seccomp_init(SCMP_ACT_KILL);
+  if (ctx == NULL) {
+    printf("seccomp error\n");
+    exit(0);
+  }
+  seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(rt_sigreturn), 0);
+  seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(exit), 0);
+  seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(exit_group), 0);
+  seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(read), 0);
+  seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(write), 0);
+  seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(open), 0);
+  seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(openat), 0);
+  seccomp_load(ctx);
+}
+'''
+sandbox 함수를 살펴보면
+SCMP_ACT_KILL을 통해 모든 시스템 콜의 호출을 허용하지 않는 규칙을 생성
+
+
