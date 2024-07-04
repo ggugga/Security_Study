@@ -1,4 +1,4 @@
-원격 코드 실행(Remote Code Execution) 취약점 
+p원격 코드 실행(Remote Code Execution) 취약점 
 - 공격을 어렵게 하기 위한 보안 매커니즘인 샌드박스(Sandbox)
 - 샌드박스(Sandbox)에 속하는 기술인 SECCOMP
 - SECCOMP이 적용된 바이너리의 분석을 도와주는 도구인 seccomp-tools
@@ -104,9 +104,25 @@ __secure_computing 함수에 진입하여
 ## FILTER_MODE
 = 원하는 시스템 콜의 호출을 허용하거나 거부 가능
 - 라이브러리 함수를 이용한 방법
+
+함수: seccomp_init
+SECCOMP 모드의 기본 값을 설정하는 함수 
+임의의 시스템 콜이 호출되면 이에 해당하는 이벤트가 발생
+
+함수: seccomp_rule_add
+SECCOMP의 규칙을 추가
+임의의 시스템 콜을 허용하거나 거부 가능
+
+함수: seccomp_load
+앞서 적용한 규칙을 애플리케이션에 반영
+
+
+
 - 필터링에 주로 쓰이는 Berkeley Packet Filter (BPF) 문법을 통해 적용하는 방법
 
 `apt install libseccomp-dev libseccomp2 seccomp`
 -> seccomp 설치 명령어
 
 
+## ALLOW LIST
+seccomp 라이브러리 함수를 사용해 지정한 시스템 콜의 호출만을 허용
