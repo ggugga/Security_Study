@@ -1,0 +1,39 @@
+static const int mode1_syscalls[] = {
+    __NR_seccomp_read,
+    __NR_seccomp_write,
+    __NR_seccomp_exit,
+    __NR_seccomp_sigreturn,
+    -1, /* negative terminated */
+};
+#ifdef CONFIG_COMPAT
+static int mode1_syscalls_32[] = {
+    __NR_seccomp_read_32,
+    __NR_seccomp_write_32,
+    __NR_seccomp_exit_32,
+    __NR_seccomp_sigreturn_32,
+    0, /* null terminated */
+};
+#endif
+static void __secure_computing_strict(int this_syscall) {
+  const int *allowed_syscalls = mode1_syscalls;
+#ifdef CONFIG_COMPAT
+  if (in_compat_syscall()) allowed_syscalls = get_compat_mode1_syscalls();
+#endif
+  do {
+    if (*allowed_syscalls == this_syscall) return;
+  } while (*++allowed_syscalls != -1);
+#ifdef SECCOMP_DEBUG
+  dump_stack();
+#endif
+  seccomp_log(this_syscall, SIGKILL, SECCOMP_RET_KILL_THREAD, true);
+  do_exit(SIGKILL);
+}
+
+
+// mode1_syscalls는 시스템 콜 번호를 저장하고 있는 변수이며, 
+// 애플리케이션의 호환 모드에 따라서 각 비트에 맞는 시스템 콜 번호를 저장. 
+// 이후 애플리케이션에서 시스템 콜이 호출되면 __secure_computing 함수에 먼저 진입
+// 전달된 시스템 콜 번호가 미리 정의된 번호와 일치하는지 검사하고, 
+// 일치하지 않는다면 SIGKILL 시그널을 전달하고 SECCOMP_RET_KILL을 반환합니다.
+
+// 즉, read, write, exit, sigreturn 시스템 콜의 호출만을 허용
