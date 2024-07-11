@@ -1,5 +1,6 @@
 // Name: strict_mode.c
 // Compile: gcc -o strict_mode strict_mode.c
+
 #include <fcntl.h>
 #include <linux/seccomp.h>
 #include <sys/prctl.h>
