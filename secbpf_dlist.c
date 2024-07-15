@@ -62,4 +62,5 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-// $ ./secbpf_dlistBad system call (core dumped)
+// $ ./secbpf_dlist
+// Bad system call (core dumped)
