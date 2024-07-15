@@ -74,5 +74,7 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-// $ ./secbpf_alistBad system call (core dumped)
-// $ ./secbpf_alist 1ELF> J@X?@8	@@@?888h?h? P?P?!
+// $ ./secbpf_alistBad 
+// system call (core dumped)
+// $ ./secbpf_alist 1
+// ELF> J@X?@8	@@@?888h?h? P?P?!
