@@ -1,0 +1,22 @@
+#Flask 애플리케이션 인스턴스를 통한 라우팅, 요청 처리, 설정
+
+from flask import Flask, request, render_template
+
+app = Flask(__name__)
+
+# 라우팅
+@app.route('/')
+def home():
+    return "Hello, World!"
+
+# 요청 처리
+@app.route('/greet', methods=['GET'])
+def greet():
+    name = request.args.get('name', 'Stranger')
+    return f'Hello, {name}!'
+
+# 설정: 오류가 발생 -> 브라우저 표시 / 코드 변경 -> 자동 반영 / 디버그 정보 접근
+app.config['DEBUG'] = True
+
+if __name__ == '__main__':
+    app.run()
