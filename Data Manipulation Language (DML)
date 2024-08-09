@@ -1,0 +1,24 @@
+데이터 조회 (SELECT)
+: SELECT column1, column2 FROM table_name WHERE condition;
+
+SELECT * FROM users WHERE id = 1;
+사용자가 자신의 정보를 볼 때, 이 쿼리가 실행
+
+
+데이터를 테이블에 추가 (INSERT)
+: INSERT INTO table_name (column1, column2) VALUES (value1, value2);
+
+INSERT INTO users (name, email) VALUES ('John Doe', 'john@example.com');
+새로운 사용자가 회원가입할 때, 이 쿼리가 실행
+
+테이블 내의 데이터 수정 (UPDATE)
+: UPDATE table_name SET column1 = value1, column2 = value2 WHERE condition;
+
+UPDATE users SET email = 'john.new@example.com' WHERE id = 1;
+사용자가 자신의 이메일을 수정할 때, 이 쿼리가 실행\
+
+테이블 내의 데이터 삭제 (DELETE)
+: DELETE FROM table_name WHERE condition;
+
+DELETE FROM users WHERE id = 1;
+사용자가 계정을 삭제할 때, 이 쿼리가 실행됩니다.
